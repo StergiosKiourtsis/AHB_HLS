@@ -6,13 +6,13 @@ The definition of masters and slave numbers is implemented in src folder global.
 
 # Repository Directory Structure
 
-'example1/' :
+`example1/` :
 
-'example2/' :
+`example2/` :
 
-'images/' :
+`images/` :
 
-'src/' :
+`src/` :
 
 
 Simple schematic with one master and three slaves: 
