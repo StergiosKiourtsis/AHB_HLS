@@ -19,3 +19,8 @@ Simple schematic with one master and three slaves:
 ![alt text][logo]
 
 [logo]: https://github.com/StergiosKiourtsis/AHB_HLS/blob/main/images/AHBOneMaster.png "Logo Title Text 2"
+
+
+# Getting Started
+
+To simulate the AHB Crossbar module you need to download this libriries:
