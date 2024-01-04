@@ -24,7 +24,7 @@ Simple schematic with one master and three slaves:
 To simulate the AHB Crossbar module you need to download this libriries: 
 `MATCHLIB_CONNECTIONS` : click [here](https://github.com/hlslibs/matchlib_connections.git)
 
-`MATCHLIB` : 
+`MATCHLIB` : click [here](http://github.com/NVlabs/matchlib.git)
 
 `BOOST_HOME` : copy following commands to terminal
    
@@ -37,4 +37,4 @@ To simulate the AHB Crossbar module you need to download this libriries:
 
 `AC_SIMUTILS` : click [here](https://github.com/hlslibs/ac_simutils.git)
 
-`SYSTEMC-2.3.3` :
+`SYSTEMC-2.3.3` : click [here](//www.accellera.org/images/downloads/standards/systemc/systemc-$SYSCVER.tar.gz)
