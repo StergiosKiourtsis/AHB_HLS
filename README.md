@@ -27,6 +27,7 @@ To simulate the AHB Crossbar module you need to download this libriries:
 `MATCHLIB` : 
 
 `BOOST_HOME` : copy following commands to terminal
+   
     git clone http://github.com/boostorg/preprocessor
     git clone http://github.com/boostorg/static_assert
     mkdir -p boost_home/include/boost
@@ -34,9 +35,6 @@ To simulate the AHB Crossbar module you need to download this libriries:
     mv static_assert/include/boost/* boost_home/include/boost
     rm -rf preprocessor static_assert
 
-# Any Header/subtitle or any text you want starting with hash
-        Your text
-    
 `AC_SIMUTILS` : click [here](https://github.com/hlslibs/ac_simutils.git)
 
 `SYSTEMC-2.3.3` :
