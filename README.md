@@ -23,4 +23,4 @@ Simple schematic with one master and three slaves:
 
 # Getting Started
 
-To simulate the AHB Crossbar module you need to download this libriries:
+To simulate the AHB Crossbar module you need to download this libriries: `MATCHLIB_CONNECTIONS` `` `` `` ``
