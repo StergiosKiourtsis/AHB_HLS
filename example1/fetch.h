@@ -169,17 +169,17 @@ SC_MODULE(fetch) {
 
             fe_out.pc = pc;
 
-						//imem_din.Push(imem_in);
-						//stergios
-						fe2AHB(pc);
+	    //imem_din.Push(imem_in);
+	    //stergios
+	    fe2AHB(pc);
 						
-						//control = AHB2fe();
+	    //control = AHB2fe();
             //imem_out = imem_dout.Pop();
-						//stergios
+	    //stergios
 
-						while(!control){
-							control = AHB2fe();
-						}
+	    while(!control){
+		control = AHB2fe();
+	    }
 						
 			#ifndef __SYNTHESIS__
             DPRINT("@" << sc_time_stamp() << "\t" << name() << "\t" << std::hex << "pc= " << pc << endl);
