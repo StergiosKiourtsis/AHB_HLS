@@ -59,12 +59,6 @@ SC_MODULE(ahb_master) {
 
   int count = 0;
   bool skip_next = false;
-  for(int i=0;i<Slaves;i++){
-    err_sb_resp_cnt[i] = 0;
-    cor_sb_resp_cnt[i] = 0;
-  }
-  //err_sb_resp_cnt = 0;
-  //cor_sb_resp_cnt = 0;
 
   while(1) {
 
@@ -109,17 +103,19 @@ std::cout << " loop start" << std::endl;
         stored_trans.pop_front();
         starter = 0;
 			}*/
-      if (rsp_in.HReady == 1) {
-        if (rsp_in.HResp == OKAY) {
+      if (rsp_in.HReady == 1 || starter) {
+        /*if (rsp_in.HResp == OKAY) {
           if (!skip_next) {
-            verify_resp(rsp_in);
+            //verify_resp(rsp_in);
+            C
           } else {
             skip_next = false;
           }
-        }
+        }*/
         last_send = req_out;
         req_out = req;
         stored_trans.pop_front();
+        starter = 0;
       } else if (rsp_in.HResp == ERROR) {
         stored_trans.push_front(req_out);
         stored_trans.push_front(last_send);
@@ -135,12 +131,6 @@ std::cout << " loop start" << std::endl;
           req = stored_trans.front();
           if (req.HTrans != IDLE && req.HTrans != BUSY) {
             std::cout << "Pushing into SB"<<" <-- " << req.HAddr << std::endl;
-            //sb_lock->lock();
-
-            //(*sb_tran[stored_decoder_for_req.front()]).push_back(req);
-            //stored_decoder_for_req.pop_front();
-
-            //sb_lock->unlock();
           }
         }
       }
@@ -151,38 +141,6 @@ std::cout << " loop start" << std::endl;
 
 
   }; // End of while(1)
-}
-  void verify_resp(M_RSP_TYPE &rsp) {
-  /*
-  bool found = false;
-  sb_lock->lock();
-  S_RSP_TYPE sb_rsp ;
-  if (!(*sb_resp[stored_decoder_for_verify.front()]).empty()){
-    sb_rsp = (*sb_resp[stored_decoder_for_verify.front()]).front();
-    (*sb_resp[stored_decoder_for_verify.front()]).pop_front();
-
-    if (sb_rsp.HResp == rsp.HResp && sb_rsp.HRData == rsp.HRData) {
-      found = true;
-    }
-    if (!found) {
-      err_sb_resp_cnt[stored_decoder_for_verify.front()]++;
-      std::cout << "Received: " << rsp.HRData << ", Expected: " << sb_rsp.HRData << std::endl;
-      std::cout << "Wrong response" << std::endl;
-    } else{
-      cor_sb_resp_cnt[stored_decoder_for_verify.front()]++;
-          std::cout << "Correct response" << std::endl;
-    }   
-    stored_decoder_for_verify.pop_front();
-
-  } else {
-    std::cout << "No responses pushed into SB" << std::endl;
-  } 
-  sb_lock->unlock();
-*/
-	#ifndef __SYNTHESIS__
-	std::cout << "Master Receided Response: " << rsp.HRData;
-	std::cout << "   , Response: " << ((rsp.HResp ==0) ? "OKAY" : "ERROR") << std::endl;
-	#endif
 }
 
   void gen_trans(sc_uint<ADDR_WIDTH> in_addr,bool mastlock){
@@ -220,11 +178,6 @@ std::cout << " loop start" << std::endl;
     tr.HWData = rand() % 50;
 
     stored_burst.push_back(tr);
-
-    sc_uint <ADDR_WIDTH> temp = decoder(addr,0);
-
-    //stored_decoder_for_req.push_back( temp );
-    //stored_decoder_for_verify.push_back( temp );
     
     if (burst_type == 1) {
       // undefined beats - INCR
@@ -246,8 +199,6 @@ std::cout << " loop start" << std::endl;
           tr.HBurst = burst_type;
           tr.HWData = rand() % 50;
           
-          //stored_decoder_for_req.push_back( temp );
-          //stored_decoder_for_verify.push_back( temp );
         }
 
         stored_burst.push_back(tr);
@@ -281,8 +232,6 @@ std::cout << " loop start" << std::endl;
         stored_burst.push_back(tr);
 
         if (!isBusy) {
-          //stored_decoder_for_req.push_back( temp );
-          //stored_decoder_for_verify.push_back( temp );
           i++;
         }
       }
@@ -296,27 +245,6 @@ std::cout << " loop start" << std::endl;
 
 
 } // End of gen_write_trans
-
-  sc_uint <ADDR_WIDTH> decoder(sc_uint <ADDR_WIDTH> address,sc_uint <ADDR_WIDTH> address_old){
-  sc_uint <ADDR_WIDTH> temp;//not availiable
-  if(address!=0){
-    for(int i=0;i<Slaves;i++){
-      //std::cout << " address :" << address << " --  memory["<<i<<"] :"<< memoryMap[i] << std::endl;
-      if(address<memoryMap[i]){
-        temp = i ;
-        break;
-      }
-    }
-  }else if(address == 0){
-    temp = address_old;
-  }
-  return temp;
-}
-
-
-
-  int err_sb_resp_cnt[Slaves];
-  int cor_sb_resp_cnt[Slaves];
 
   // Constructor
   SC_HAS_PROCESS(ahb_master);

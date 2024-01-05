@@ -33,7 +33,7 @@ SC_MODULE(Top) {
   ahb_master INIT_S1(master1);
   
   
-  CCS_DESIGN(ahb_if) INIT_S1(interconnect);
+  CCS_DESIGN(ahb4HLS) INIT_S1(interconnect);
 
 
   Connections::Combinational< M_TRAN > INIT_S1(from_master0_req);

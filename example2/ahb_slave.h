@@ -11,8 +11,6 @@
 
 #define DATA_WIDTH 32
 
-//template <int DATA_WIDTH>
-//template <int Masters>
 SC_MODULE(ahb_slave) {
 
   typedef AHB_CTR_MA<DATA_WIDTH> M_REQ_TYPE;
@@ -27,9 +25,6 @@ SC_MODULE(ahb_slave) {
   Connections::In<  S_REQ_TYPE > slave_in;
   Connections::Out< S_RSP_TYPE > slave_out;
 
-
-  int err_sb_tran_cnt[Masters];
-  int cor_sb_tran_cnt[Masters];
 
   void do_cycle(){
   slave_in.Reset();
@@ -46,10 +41,6 @@ SC_MODULE(ahb_slave) {
   bool control;
   sc_uint<32> r;
   
-  for(int i=0;i<Masters;i++){
-    err_sb_tran_cnt[i] = 0;
-    cor_sb_tran_cnt[i] = 0;
-  }
   int timer = 2;
 
   while(1) {
@@ -93,17 +84,11 @@ SC_MODULE(ahb_slave) {
       }
     }
 
-    //how to find which condition isn't accepted
     if (verify && req_in.HTrans != ahb::AHB_Encoding::AHBTRANS::IDLE
                && req_in.HTrans != ahb::AHB_Encoding::AHBTRANS::BUSY
                && rsp.HResp != ahb::AHB_Encoding::AHBRESP::ERROR
                && control) {
-      verify_request(req_in);
 
-      //sb_lock->lock();
-      //(*sb_resp[0]).push_back(rsp);
-
-      //sb_lock->unlock();
       control = 0;
     }
 
@@ -115,36 +100,6 @@ SC_MODULE(ahb_slave) {
   } // End of while(1)
 }
 
-  void verify_request(S_REQ_TYPE &req) {
-  /*
-  sb_lock->lock();
-    if (!(*sb_tran[0]).empty()) {
-      bool found = false;
-      M_REQ_TYPE sb_req = (*sb_tran[0]).front();
-      (*sb_tran[0]).pop_front();
-
-      if (sb_req.HTrans == req.HTrans && sb_req.HAddr == req.HAddr && sb_req.HBurst == req.HBurst) {
-        found = true;
-      }
-
-      if (!found) {
-        err_sb_tran_cnt[0]++;
-        std::cout << "Received: " << req.HAddr << ", Expected: " << sb_req.HAddr << std::endl;
-        std::cout << "Wrong request" << std::endl;
-      } else {
-        cor_sb_tran_cnt[0]++;
-        //std::cout << "Correct request" << std::endl;
-      }
-    } else {
-      std::cout << "No Requests pushed into SB" << std::endl;
-    }
-  sb_lock->unlock();
-	*/
-	#ifndef __SYNTHESIS__
-	std::cout << "Slave Receided Request: " << req.HAddr << std::endl;
-	#endif
-
-}
 
   SC_HAS_PROCESS(ahb_slave);
   ahb_slave(sc_module_name nm)
@@ -154,13 +109,5 @@ SC_MODULE(ahb_slave) {
     async_reset_signal_is(rst, false);
   };
 };
-
-//template <int SIZE>
-//void ahb_slave:: do_cycle()  // End of do_cycle
-
-
-
-//template <int DATA_WIDTH>
-//void ahb_slave:: verify_request(S_REQ_TYPE &req)
 
 #endif //__AHB_SLAVE_H__
