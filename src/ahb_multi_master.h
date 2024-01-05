@@ -7,13 +7,13 @@
 
 #include "systemc.h"
 #include "ahb.h"
+#include "global_example1.h"
 //#include "global_example2.h"
-#include "global.h"
 
 #define DATA_WIDTH 32
 
-#pragma hls_design top
-SC_MODULE(ahb_if) {
+//#pragma hls_design top
+SC_MODULE(ahb4HLS) {
 
   enum STATES {FREE = 0, WAIT_CYCLE = 1, DATA = 2};
   
@@ -84,7 +84,9 @@ SC_MODULE(ahb_if) {
   for(int i=0;i<Slaves;i++){
     matrix_slaves_control[i]=Slaves+1;
   }
+  ///////////////////////////////////////
   //-------memory map definition-------//
+  ///////////////////////////////////////
   memoryMap[0]=map0;
   memoryMap[1]=map1;
   //memoryMap[2]=map2;
@@ -115,13 +117,14 @@ SC_MODULE(ahb_if) {
     }
    
       for(int i=0;i<Masters;i++){
-          if(req_in[i].HAddr!=address[i]){
+          if(req_in[i].HTrans!=0 && req_in[i].HTrans!=1){
+          //if(req_in[i].HAddr!=address[i]){
             old_address[i] = address[i];
             address[i]=req_in[i].HAddr;
           }
         
 
-        if (ready[i] && address[i]!=old_address[i]) {
+        if (address[i]!=old_address[i]) {
           decoder_result_old[i] = decoder_result[i];
           decoder_result[i] = decoder(address[i],decoder_result_old[i]);
           internal_req_out[decoder_result[i]][i] = req_in[i];
@@ -140,7 +143,7 @@ SC_MODULE(ahb_if) {
           // FREE: There isn't any transaction active.
 
           rsp_out[i].HResp = ahb::AHB_Encoding::AHBRESP::OKAY;
-          rsp_out[i].HRData = 4864;
+          rsp_out[i].HRData = 89;
           
           // if Master sent a request, move to next state,
           // else stay idle and send OKAY response.
@@ -154,7 +157,8 @@ SC_MODULE(ahb_if) {
           //             is now waiting for the Slave's response. 
 
           rsp_out[i].HResp = ahb::AHB_Encoding::AHBRESP::OKAY;
-          rsp_out[i].HRData = 4864;
+          rsp_out[i].HRData = 90;
+          //4864
           ready[i] = 0;
           state[i] = DATA;
           rsp_out[i].HReady = 0 ;
@@ -165,9 +169,15 @@ SC_MODULE(ahb_if) {
 
           //there is a problem sometimes when change slave , select signal change but responde delay a cycle to read
           //this is working
+          std::cout<<"see decoder : "<<decoder_result[i]<<" , and matrix control : "<< matrix_masters_control[i] <<std::endl;
           if(matrix_masters_control[i]==decoder_result[i]){
+						
+						std::cout<<"rsp_out[ "<<i<<"] is :"<<rsp_out[i]<<"and rsp_in[decoder_result[i]] is "<<rsp_in[decoder_result[i]]<<std::endl;
             rsp_out[i] = rsp_in[decoder_result[i]];
+            
             ready[i] = rsp_in[decoder_result[i]].HReadyout;
+            std::cout<<"After assigment"<<std::endl;
+            std::cout<<"rsp_out[ "<<i<<"] is :"<<rsp_out[i]<<"and ready ["<<i<<"] is "<<ready[i]<<std::endl;
             if (rsp_in[decoder_result[i]].HReadyout == 1) {
               state[i] = FREE;
               matrix_masters_control[i]=Masters+1;
@@ -176,9 +186,9 @@ SC_MODULE(ahb_if) {
           }else{
             
             rsp_out[i].HResp = ahb::AHB_Encoding::AHBRESP::OKAY;
-            rsp_out[i].HRData = 4864;
+            rsp_out[i].HRData = 91;
             ready[i] = 0;
-            state[i] = DATA;
+            state[i] = WAIT_CYCLE;
             rsp_out[i].HReady = 0;
           }
       }//end state control
@@ -188,7 +198,12 @@ SC_MODULE(ahb_if) {
 
         for(int j=0;j<Slaves;j++){
          if(j==decoder_result[i]){
-            internal_req_out[j][i].HReady = ready[i];
+            //internal_req_out[j][i].HReady = ready[i];
+            //if(state[i] == WAIT_CYCLE){
+							internal_req_out[j][i].HReady = internal_req_out[j][i].HSel;
+						//}else{
+							//internal_req_out[j][i].HReady = 0;
+						//}
           }else{
             internal_req_out[j][i].HReady = 0;
           }
@@ -227,7 +242,7 @@ SC_MODULE(ahb_if) {
         std::cout << "\tReceived from MASTER "<< i <<" --> Transfer Type: " << ((req_in[i].HTrans==0) ? "IDLE" :
                                                                   (req_in[i].HTrans==1) ? "BUSY" : "PCKT");
         std::cout << ", Address: " << req_in[i].HAddr << std::endl;
-        std::cout << "\tResponse to MASTER  "<< i <<"  <-- DATA: " << rsp_out[i].HRData << ", Ready: " << req_out[decoder_result[i]].HReady;
+        std::cout << "\tResponse to MASTER  "<< i <<"  <-- DATA: " << rsp_out[i].HRData << ", Ready: " << /*req_out[decoder_result[i]]*/rsp_out[i].HReady;
         std::cout << ", Response: " << ((rsp_out[i].HResp == 0) ? "OKAY" : "ERROR") << std::endl;
 
         std::cout << "\tSending to SLAVE"<< decoder_result[i] <<  " <-- Transfer Type: "<<((req_out[decoder_result[i]].HTrans==0) ? "IDLE" :
@@ -284,8 +299,8 @@ SC_MODULE(ahb_if) {
    
 }
   
-  SC_HAS_PROCESS(ahb_if);
-  ahb_if(sc_module_name nm)
+  SC_HAS_PROCESS(ahb4HLS);
+  ahb4HLS(sc_module_name nm)
   {
     SC_THREAD(do_cycle);
     sensitive << clk.pos();
