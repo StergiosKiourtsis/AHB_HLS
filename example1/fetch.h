@@ -107,11 +107,11 @@ SC_MODULE(fetch) {
 		}
 		bool AHB2fe(){
 			     rsp = rsp_fe.Pop();
-                 if(rsp.HReady && !rsp.HResp){
+           if(rsp.HReady && !rsp.HResp){
 							imem_out.instr_data = rsp.HRData;
 							imem_de.Push(imem_out);
-                            dout.Push(fe_out);
-            							return 1;
+              dout.Push(fe_out);
+            	return 1;
 					 }else{
 							return 0;
 					 }
@@ -139,7 +139,7 @@ SC_MODULE(fetch) {
             position = 0;
             
             //stergios
-			control = 1;
+						control = 0;
             //stergios
             
             wait();
@@ -155,7 +155,9 @@ SC_MODULE(fetch) {
                 redirect_addr = fetch_in.address;
                 freeze = fetch_in.freeze;
             }
-		  if(control){
+          
+          
+		  
             // Mechanism for incrementing PC
             if ((redirect && redirect_addr != pc) || freeze) {
                 pc = redirect_addr;
@@ -167,18 +169,18 @@ SC_MODULE(fetch) {
 
             fe_out.pc = pc;
 
-			//imem_din.Push(imem_in);
-			//stergios
-			fe2AHB(pc);
+						//imem_din.Push(imem_in);
+						//stergios
+						fe2AHB(pc);
 						
-			control = AHB2fe();
-            
+						//control = AHB2fe();
             //imem_out = imem_dout.Pop();
-			//stergios
+						//stergios
 
-			}else{
-				control = AHB2fe();
-			}
+						while(!control){
+							control = AHB2fe();
+						}
+						
 			#ifndef __SYNTHESIS__
             DPRINT("@" << sc_time_stamp() << "\t" << name() << "\t" << std::hex << "pc= " << pc << endl);
             DPRINT(endl);

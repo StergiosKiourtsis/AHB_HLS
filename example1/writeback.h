@@ -78,6 +78,7 @@ SC_MODULE(writeback) {
     
     M_REQ_TYPE req;
 	  M_RSP_TYPE rsp;
+	  bool control;
 
     sc_uint < DATA_SIZE > mem_dout;
     sc_uint < XLEN > dmem_data;
@@ -88,6 +89,32 @@ SC_MODULE(writeback) {
         sensitive << clk.pos();
         async_reset_signal_is(rst, false);
     }
+    
+    void wb2AHB(bool read , sc_int < PC_LEN > addr){
+                //dmem_in.Push(dmem_dout);
+                //stergios change
+                req.HAddr = addr;
+								req.HTrans = ahb::AHB_Encoding::AHBTRANS::NONSEQ;
+								req.HSize = 2;//PC_LEN is 32bit,the code 32bit signal is 2
+								req.HProt = 0; // temporary
+								req.HMastLock = 0;
+								req.HBurst = 0; // Signle transfer
+								req.HWrite = 0;//low for read
+								
+                req_wb.Push(req);			
+			
+		}
+
+		bool AHB2wb(){
+				rsp = rsp_wb.Pop();
+				if(rsp.HReady && !rsp.HResp){
+						dmem_din.data_out = rsp.HRData;
+						dmem_data = dmem_din.data_out;
+						return 1;
+				}else{
+						return 0;
+				}
+		}
 
     void writeback_th(void) {
         WRITEBACK_RST: {
@@ -107,6 +134,7 @@ SC_MODULE(writeback) {
             
             dmem_data = 0;
             mem_dout = 0;
+            control = 0;
         }
 
         #pragma hls_pipeline_init_interval 1
@@ -126,7 +154,7 @@ SC_MODULE(writeback) {
             
             // Compute
             // *** Memory access.
-			dmem_data = 0;
+						dmem_data = 0;
             // WARNING: only supporting aligned memory accesses
             // Preprocess address
 			
@@ -166,27 +194,15 @@ SC_MODULE(writeback) {
                 dmem_dout.read_en = true;
                 //dmem_in.Push(dmem_dout);
                 //stergios change
-                req.HAddr = dmem_dout.data_addr+65536;
-								req.HTrans = ahb::AHB_Encoding::AHBTRANS::NONSEQ;
-								req.HSize = 2;//PC_LEN is 32bit,the code 32bit signal is 2
-								req.HProt = 0; // temporary
-								req.HMastLock = 0;
-								req.HBurst = 0; // Signle transfer
-								if(dmem_dout.read_en){
-									req.HWrite = 0;//low is for read
-									//req.HWData = 0;	
-								}if(dmem_dout.write_en){
-									req.HWrite = 1;//high is for write
-									req.HWData = dmem_dout.data_in;	
+								wb2AHB(0, dmem_dout.data_addr+65536);	
+								
+								while(!control){
+									control = AHB2wb();
 								}
-                req_wb.Push(req);
-				
-				rsp = rsp_wb.Pop();
-				
                 //dmem_din = dmem_out.Pop();
                 //dmem_data = dmem_din.data_out;
-                dmem_din.data_out = rsp.HRData;
-                dmem_data = dmem_din.data_out;
+                //dmem_din.data_out = rsp.HRData;
+                //dmem_data = dmem_din.data_out;
                 //stergios
                 //freeze = false;
                 switch (input.ld) { // LOAD

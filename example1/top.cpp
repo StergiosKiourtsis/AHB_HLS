@@ -25,11 +25,7 @@ class Top: public sc_module {
 
     CCS_DESIGN(drim4hls) CCS_INIT_S1(m_dut);
     
-		ahb_if  CCS_INIT_S1(interconnect);
-		//ahb_slave_converter_imem CCS_INIT_S1(converter_imem);
-		//ahb_slave_converter_dmem CCS_INIT_S1(converter_dmem);
-		//ahb_master_converter_fetch CCS_INIT_S1(converter_fetch);
-		//ahb_master_converter_writeback CCS_INIT_S1(converter_writeback);
+		ahb4HLS  CCS_INIT_S1(interconnect);
 
     sc_clock clk;
     SC_SIG(bool, rst);
@@ -145,26 +141,40 @@ class Top: public sc_module {
             req_imem = AHB2imem.Pop();
             //imem_din = converter2imem.Pop();
 
-			std::cout<<"Iaddr pop : "<< req_imem.HAddr << std::endl;
-			if(req_imem.HSel && req_imem.HReady && req_imem.HTrans!=0 && req_imem.HTrans!=1){
-						imem_din.instr_addr = req_imem.HAddr;
-			std::cout<<"Iaddr is : "<< imem_din.instr_addr << std::endl;			
-            unsigned int addr_aligned = imem_din.instr_addr >> 2;
-						std::cout <<"shifted";
-						std::cout << " imem addr= " << addr_aligned << endl;
+						std::cout<<"Iaddr pop : "<< req_imem.HAddr << std::endl;
+						std::cout<<"IHSel pop : "<< req_imem.HSel << std::endl;
+						std::cout<<"IHReady pop : "<< req_imem.HReady << std::endl;
+						std::cout<<"IHTrans pop : "<< req_imem.HTrans << std::endl;
+       
+						if(req_imem.HSel){
+							if(req_imem.HReady && req_imem.HTrans!=0 && req_imem.HTrans!=1){
+													imem_din.instr_addr = req_imem.HAddr;
+													std::cout<<"Iaddr is : "<< imem_din.instr_addr << std::endl;			
+													unsigned int addr_aligned = imem_din.instr_addr >> 2;
+													std::cout <<"shifted";
+													std::cout << " imem addr= " << addr_aligned << endl;
             
-            imem_dout.instr_data = imem[addr_aligned];
-			std::cout<<"I instr read : "<< imem_dout.instr_data << std::endl;
-            unsigned int random_stalls = (rand() % 2) + 1;
-            //unsigned int random_stalls = 1;
-            wait(random_stalls);
+													imem_dout.instr_data = imem[addr_aligned];
+													std::cout<<"I instr read : "<< imem_dout.instr_data << std::endl;
+													unsigned int random_stalls = (rand() % 2) + 1;
+													//unsigned int random_stalls = 1;
+													//wait(random_stalls);
 
-            rsp_imem.HReadyout = 1;
-			rsp_imem.HResp = 0;
-			rsp_imem.HRData = imem_dout.instr_data;
-            imem2AHB.Push(rsp_imem);
-            std::cout<<"I instr push : "<< rsp_imem.HRData << std::endl;
-        }
+													rsp_imem.HReadyout = 1;
+													rsp_imem.HResp = 0;
+													rsp_imem.HRData = imem_dout.instr_data;
+													imem2AHB.Push(rsp_imem);
+													std::cout<<"I instr push : "<< rsp_imem.HRData << std::endl;
+                        
+							}else{
+							          rsp_imem.HReadyout = 0;
+												rsp_imem.HResp = 0;
+												rsp_imem.HRData = 1111;
+												imem2AHB.Push(rsp_imem);
+							
+							}
+
+						}
             wait();
         }
 
