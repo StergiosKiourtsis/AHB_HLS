@@ -19,6 +19,7 @@ For example at the example 2 we have 3 slaves and the memory map for this exampl
 So in global_example2.h we must define the limits 3000,4000,8000 and then in  ahb_multi_master.h lines 90-92 implement this address limits in the decoder.
 If we want to run example 2 we must go to ahb_multi_master.h  at line 11 and include the globals_example2.h and implement map0,map1 and map2 
 
+# Schematic
 Simple schematic with one master and three slaves: 
 ![alt text][logo]
 
