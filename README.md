@@ -6,12 +6,20 @@ The definition of masters and slave numbers is implemented in src folder global.
 
 # Repository Directory Structure
 
-`example1/` :
+`example1` : In this folder we have an example were the top module is the version core of a 32-bit RISC-V processorcore that I take from here, https://github.com/ic-lab-duth/DRIM4HLS/tree/main .
+We have a 2 master 2 slave connection.
 
-`example2/` :
+`example2` : In this example we have a a 2 master 3 slave connection. Both master and slave modules are custom and we disign them to try all the possibilities. And in this example the top module
+is the ahb4hls module, in which can examine the hardware properties(throuput, area etc)
 
-`src/` :
+`src` : In this folder we have the source code, the ahb_multi_master.h, ahb.h, ahb_encoding.h, global_example1.h, global_example2.h. 
 
+# How to define the templated parameters 
+In the global_example1.h global_example2.h we define the number of master and slaves and also the upper limit of memory address of slaves.
+For example at the example 2 we have 3 slaves and the memory map for this example is Slave0 address 0-3000 Slave1 3001-4000 Slave2 4001-8000.
+So in global_example2.h we must define the limits 3000,4000,8000 and then in  ahb_multi_master.h lines 90-92 implement this address limits in the decoder.
+If we want to run example 2 we must go to ahb_multi_master.h  at line 11 and include the globals_example2.h and implement map0,map1 and map2 
+The d
 
 Simple schematic with one master and three slaves: 
 ![alt text][logo]
