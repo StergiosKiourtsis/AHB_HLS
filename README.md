@@ -6,9 +6,9 @@ On this version we figure out the version that user includes templated number of
 # Repository Directory Structure
 
 `example1` : In this folder we have an example were the top module is the version core of a 32-bit RISC-V processor that I take from here, https://github.com/ic-lab-duth/DRIM4HLS/tree/main .
-We have a 2 masters 2 slaves connection.
+We have a 2 masters 2 slaves interconnection.
 
-`example2` : In this example we have a a 2 masters 3 slaves connection. Both master and slave modules are custom and we design them to try all the possibilities. And in this example the top module
+`example2` : In this example we have a a 2 masters 3 slaves interconnection. Both master and slave modules are custom and we design them to try all the possibilities. And in this example the top module
 is the ahb4hls module, in which can examine the hardware properties(throughput, area etc.)
 
 `src` : In this folder we have the source code, the ahb_multi_master.h, ahb.h, ahb_encoding.h, global_example1.h, global_example2.h. 
