@@ -7,8 +7,9 @@
 
 #include "systemc.h"
 #include "ahb_encoding.h"
-#include "nvhls_connections.h"
-
+#include <mc_connections.h>
+//#include "nvhls_connections.h"
+//
 
 #define ADDR_WIDTH     32
 #define WRITE_WIDTH    1
@@ -142,6 +143,7 @@ struct AHB_CTR_SL {
     HMastLock = rhs.HMastLock;
     HWData = rhs.HWData;
     HSel = 1;
+    HReady = 1;
 
     return *this;
   }
@@ -162,8 +164,8 @@ struct AHB_CTR_SL {
   }
 
 
-  static const int width = ADDR_WIDTH + WRITE_WIDTH + HSIZE_WIDTH +
-    BURST_WIDTH + PROT_WIDTH + TRANS_WIDTH + SEL_WIDTH +
+  static const int width = SEL_WIDTH + ADDR_WIDTH + WRITE_WIDTH + HSIZE_WIDTH +
+    BURST_WIDTH + PROT_WIDTH + TRANS_WIDTH + 
     READY_WIDTH + MASTLOCK_WIDTH + DATA_WIDTH;
 
   inline friend std::ostream& operator << ( std::ostream& os, const AHB_CTR_SL& flit_tmp ) {
@@ -201,6 +203,7 @@ struct AHB_CTR_SL {
   // Matchlib Marshaller requirement
   template<unsigned int Size>
   void Marshall(Marshaller<Size>& m) {
+    m& HSel;
     m& HAddr;
     m& HWrite;
     m& HSize;
@@ -208,7 +211,6 @@ struct AHB_CTR_SL {
     m& HProt;
     m& HTrans;
     m& HMastLock;
-    m& HSel;
     m& HReady;
     m& HWData;
   };

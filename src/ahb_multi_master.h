@@ -12,7 +12,7 @@
 
 #define DATA_WIDTH 32
 
-//#pragma hls_design top
+#pragma hls_design top
 SC_MODULE(ahb4HLS) {
 
   enum STATES {FREE = 0, WAIT_CYCLE = 1, DATA = 2};
@@ -117,29 +117,28 @@ SC_MODULE(ahb4HLS) {
     }
    
       for(int i=0;i<Masters;i++){
-          if(req_in[i].HTrans!=0 && req_in[i].HTrans!=1){
-          //if(req_in[i].HAddr!=address[i]){
+      if (state[i] == FREE) {
+					
+					idle_transaction[i] = (req_in[i].HTrans == ahb::AHB_Encoding::AHBTRANS::IDLE || req_in[i].HTrans == ahb::AHB_Encoding::AHBTRANS::BUSY);
+				
+          if(!idle_transaction[i]){
             old_address[i] = address[i];
             address[i]=req_in[i].HAddr;
-          }
-        
+         
+            decoder_result_old[i] = decoder_result[i];
+						decoder_result[i] = decoder(address[i],decoder_result_old[i]);
+						internal_req_out[decoder_result[i]][i] = req_in[i];
 
-        if (address[i]!=old_address[i]) {
-          decoder_result_old[i] = decoder_result[i];
-          decoder_result[i] = decoder(address[i],decoder_result_old[i]);
-          internal_req_out[decoder_result[i]][i] = req_in[i];
-        }
-
-        //set select signals
-        for(int j=0;j<Slaves;j++){
-          if(j == decoder_result[i]){
-            internal_req_out[j][i].HSel = 1;
-          }else{
-            internal_req_out[j][i].HSel = 0;
-          } 
-        }
-
-        if (state[i] == FREE) {
+						//set select signals
+						for(int j=0;j<Slaves;j++){
+							if(j == decoder_result[i]){
+								internal_req_out[j][i].HSel = 1;
+							}else{
+								internal_req_out[j][i].HSel = 0;
+							} 
+						}
+					}//new end of idle transaction control
+        //if (state[i] == FREE) {
           // FREE: There isn't any transaction active.
 
           rsp_out[i].HResp = ahb::AHB_Encoding::AHBRESP::OKAY;
@@ -147,11 +146,10 @@ SC_MODULE(ahb4HLS) {
           
           // if Master sent a request, move to next state,
           // else stay idle and send OKAY response.
-          idle_transaction[i] = (req_in[i].HTrans == ahb::AHB_Encoding::AHBTRANS::IDLE || req_in[i].HTrans == ahb::AHB_Encoding::AHBTRANS::BUSY);
+          
           ready[i] = idle_transaction[i];
           state[i] = (idle_transaction[i]) ? FREE : WAIT_CYCLE;
           rsp_out[i].HReady =  idle_transaction[i];
-          //rsp_out[i].HReady =  0;
         } else if (state[i] == WAIT_CYCLE) {
           // WAIT_CYCLE: Master has pushed a request into the bus and 
           //             is now waiting for the Slave's response. 
@@ -167,18 +165,14 @@ SC_MODULE(ahb4HLS) {
           //       pushing slave's responses to Master, until 
           //       HReadyout = 1 (Correct data send).
 
-          //there is a problem sometimes when change slave , select signal change but responde delay a cycle to read
-          //this is working
-          std::cout<<"see decoder : "<<decoder_result[i]<<" , and matrix control : "<< matrix_masters_control[i] <<std::endl;
           if(matrix_masters_control[i]==decoder_result[i]){
-						
-						std::cout<<"rsp_out[ "<<i<<"] is :"<<rsp_out[i]<<"and rsp_in[decoder_result[i]] is "<<rsp_in[decoder_result[i]]<<std::endl;
-            rsp_out[i] = rsp_in[decoder_result[i]];
-            
+            //rsp_out[i] = rsp_in[decoder_result[i]];
+            rsp_out[i].HResp = rsp_in[decoder_result[i]].HResp;
+            rsp_out[i].HRData = rsp_in[decoder_result[i]].HRData ;
+            rsp_out[i].HReady = rsp_in[decoder_result[i]].HReadyout;
             ready[i] = rsp_in[decoder_result[i]].HReadyout;
-            std::cout<<"After assigment"<<std::endl;
-            std::cout<<"rsp_out[ "<<i<<"] is :"<<rsp_out[i]<<"and ready ["<<i<<"] is "<<ready[i]<<std::endl;
-            if (rsp_in[decoder_result[i]].HReadyout == 1) {
+
+            if (ready[i]) {
               state[i] = FREE;
               matrix_masters_control[i]=Masters+1;
               matrix_slaves_control[decoder_result[i]]=0;
@@ -188,7 +182,6 @@ SC_MODULE(ahb4HLS) {
             rsp_out[i].HResp = ahb::AHB_Encoding::AHBRESP::OKAY;
             rsp_out[i].HRData = 91;
             ready[i] = 0;
-            state[i] = WAIT_CYCLE;
             rsp_out[i].HReady = 0;
           }
       }//end state control
@@ -208,7 +201,7 @@ SC_MODULE(ahb4HLS) {
             internal_req_out[j][i].HReady = 0;
           }
         }
-        				
+       				
       }//end of main master loop
 
     //arbitration 
@@ -225,24 +218,17 @@ SC_MODULE(ahb4HLS) {
       }
     }
         
-    // Push response to Master and request to Slave.
-    for(int i=0;i<Masters;i++){
-				rsp_to_master[i].PushNB(rsp_out[i]);
-    }
 
-    for(int i=0;i<Slaves;i++){
-				req_to_slave[i].PushNB(req_out[i]);
-    }
-    
+    /*
     #ifndef __SYNTHESIS__
     std::cout << " -- Simulation Stopped @ " << sc_time_stamp() << " -- " << std::endl;
     for(int i=0;i<Masters;i++){
-      if(decoder_result[i]!=4){
+      //if(decoder_result[i]!=Slaves+1){
         std::cout << "\t\t Master"<<i<<std::endl;
         std::cout << "\tReceived from MASTER "<< i <<" --> Transfer Type: " << ((req_in[i].HTrans==0) ? "IDLE" :
                                                                   (req_in[i].HTrans==1) ? "BUSY" : "PCKT");
         std::cout << ", Address: " << req_in[i].HAddr << std::endl;
-        std::cout << "\tResponse to MASTER  "<< i <<"  <-- DATA: " << rsp_out[i].HRData << ", Ready: " << /*req_out[decoder_result[i]]*/rsp_out[i].HReady;
+        std::cout << "\tResponse to MASTER  "<< i <<"  <-- DATA: " << rsp_out[i].HRData << ", Ready: " <<rsp_out[i].HReady;
         std::cout << ", Response: " << ((rsp_out[i].HResp == 0) ? "OKAY" : "ERROR") << std::endl;
 
         std::cout << "\tSending to SLAVE"<< decoder_result[i] <<  " <-- Transfer Type: "<<((req_out[decoder_result[i]].HTrans==0) ? "IDLE" :
@@ -250,9 +236,27 @@ SC_MODULE(ahb4HLS) {
         std::cout << ", Address: " << req_out[decoder_result[i]].HAddr << std::endl;
         std::cout << "\tResponse from SLAVE" << decoder_result[i] <<  "  --> DATA: " << rsp_in[decoder_result[i]].HRData << ", Ready: " << rsp_in[decoder_result[i]].HReadyout;
         std::cout << ", Response: " << ((rsp_in[decoder_result[i]].HResp ==0) ? "OKAY" : "ERROR") << std::endl;
-      }
+      //}
     }
-    #endif
+    
+    #endif*/
+    
+    // Push response to Master and request to Slave.
+    for(int i=0;i<Masters;i++){
+				//std::cout << " Before send Master Response: " << rsp_out[i] << std::endl;
+				//std::cout << "Before push Channel value : " << rsp_to_master[i] << std::endl;
+				
+				rsp_to_master[i].PushNB(rsp_out[i]);
+				
+				//std::cout << "After Pushh Channel value : " << rsp_to_master[i] << std::endl;
+ 				//std::cout << " After send Master" << i <<" Response: " << rsp_out[i] << std::endl;
+ 				
+    }
+
+    for(int i=0;i<Slaves;i++){
+				req_to_slave[i].PushNB(req_out[i]);
+    }
+    
   }//end while loop
 }//end do loop
 
