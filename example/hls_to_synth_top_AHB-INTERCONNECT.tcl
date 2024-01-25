@@ -1,12 +1,5 @@
 options set Input/CppStandard c++11
-options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/matchlib_connections/include -append
-options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/matchlib/cmod/include -append
-options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/boost_home/include -append
-options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/ac_simutils/include -append
-#options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/ac_types/include -append
-options set Input/SearchPath /home/skiourtsis/Desktop/matchlib_toolkit/systemc-2.3.3/src/sysc/packages -append
-options set Input/SearchPath /opt/lib/matchlib_mentor_19-09-17/mentor/include -append
-solution file add ../examplewithBlockingChannel/top.cpp  
+solution file add ../example/top.cpp  
 go compile
 solution library add nangate-45nm_beh -- -rtlsyntool OasysRTL -vendor Nangate -technology 045nm
 solution library add ram_nangate-45nm-dualport_beh
