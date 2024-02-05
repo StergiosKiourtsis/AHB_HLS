@@ -1,6 +1,6 @@
-//
-// Created by dionysis on 9/3/20.
-//
+/*	
+	@author VLSI Lab, EE dept., Democritus University of Thrace
+*/
 
 #ifndef __AHB_ENCODING_H__
 #define __AHB_ENCODING_H__
