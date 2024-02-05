@@ -10,6 +10,11 @@ We have a 2 masters 2 slaves interconnection.
 
 `src` : In this folder we have the source code, the ahb_multi_master.h, ahb.h, ahb_encoding.h, global_example1.h
 
+`images` : In this folder we have store the images of this git repository
+
+`codeExamples` : In this folder we store code examples that is used for the example. This codes ara programms, that can be run in DRIM4HLS.
+the default option is fibonacci/fibonacci.txt
+
 # How to define the templated parameters 
 In the global_example1.h we define the number of master and slaves and also the upper limit of memory address of slaves.
 For example we have 3 slaves and the memory map for this example is Slave0 address 0-3000 Slave1 3001-4000 Slave2 4001-8000.
@@ -46,5 +51,6 @@ To simulate the AHB Crossbar module you need to download this libriries:
 # Synthesis 
 In the example folder there are 2 .tcl files. 
 hls_to_synth_top_AHB-INTERCONNECT.tcl is a file which can be used to catapult to run the example. With this file the TOP module will me the AHB interconnect module.
-If we want to run the example with the core as top module you must use th
+If we want to run the example with the core as top module you must use hls_to_synth_top_drim4hls.tcl. The purpose of 2 option is to see both the performance of 
+AHB module and the effect replecement of point to point connection with a whole interconnection protocol.
 
