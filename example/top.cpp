@@ -310,7 +310,7 @@ int sc_main(int argc, char * argv[]) {
 
     //std::string testing_program = argv[1];
     // USE IN QUESTASIM
-    std::string testing_program ="/home/skiourtsis/Desktop/AHBPROTOCOL/examples/fibonacci/fibonacci.txt";
+    std::string testing_program ="../codeExamples/fibonacci/fibonacci.txt";
 
     Top top("top", testing_program);
     sc_start();
