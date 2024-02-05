@@ -8,7 +8,6 @@
 #include "systemc.h"
 #include "ahb.h"
 #include "global_example1.h"
-//#include "global_example2.h"
 
 #define DATA_WIDTH 32
 
@@ -89,7 +88,6 @@ SC_MODULE(ahb4HLS) {
   ///////////////////////////////////////
   memoryMap[0]=map0;
   memoryMap[1]=map1;
-  //memoryMap[2]=map2;
   
   #pragma hls_pipeline_init_interval 1
   while(1) {
