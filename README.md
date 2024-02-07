@@ -1,6 +1,8 @@
 # AMBA AHB PROTOCOL: designed for High Level Synthesis
 
-We work on a new project about AHB protocol. This project has as structure the nvidia_connections tool and SystemC library.  
+AHB_HLS is an implemented model of AHB AMBA interconnection protocol designed with SystemC and [MATCHLIB_CONNECTIONS](https://github.com/hlslibs/matchlib_connections.git) library.
+The model is synthesized with High-Level-Synthesis achieving an full-throughput pipeline dataflow.
+Mentor's Catapult 2021.1.1 is used for sythesis and QuestaSim 2019.3_1 is used for verification.
 On this version we figure out the version that user includes templated number of masters(managers, requestors) and slaves(subordinates, completers). 
 
 # Repository Directory Structure
