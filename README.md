@@ -5,12 +5,12 @@ On this version we figure out the version that user includes templated number of
 
 # Repository Directory Structure
 
-`example` : In this folder we have an example were the top module is the version core of a 32-bit RISC-V processor that I take from here, https://github.com/ic-lab-duth/DRIM4HLS/tree/main .
+`example` : In this folder there is an example were the top module is the version core of a 32-bit RISC-V processor that I take from here, https://github.com/ic-lab-duth/DRIM4HLS/tree/main .
 We have a 2 masters 2 slaves interconnection.
 
-`src` : In this folder we have the source code, the ahb_multi_master.h, ahb.h, ahb_encoding.h, global_example1.h
+`src` : In this folder there is the source code, the ahb_multi_master.h, ahb.h, ahb_encoding.h, global_example1.h
 
-`images` : In this folder we have store the images of this git repository
+`images` : In this folder there is store the images of this git repository
 
 `codeExamples` : In this folder we store code examples that is used for the example. This codes ara programms, that can be run in DRIM4HLS.
 the default option is fibonacci/fibonacci.txt
@@ -30,7 +30,7 @@ Simple schematic with one master and three slaves:
 
 # Getting Started
 
-To simulate the AHB Crossbar module you need to download this libriries: 
+To simulate the AHB Crossbar module you need to download this librαries: 
 `MATCHLIB_CONNECTIONS` : click [here](https://github.com/hlslibs/matchlib_connections.git)
 
 `MATCHLIB` : click [here](http://github.com/NVlabs/matchlib.git)
@@ -50,7 +50,7 @@ To simulate the AHB Crossbar module you need to download this libriries:
 
 # Synthesis 
 In the example folder there are 2 .tcl files. 
-hls_to_synth_top_AHB-INTERCONNECT.tcl is a file which can be used to catapult to run the example. With this file the TOP module will me the AHB interconnect module.
-If we want to run the example with the core as top module you must use hls_to_synth_top_drim4hls.tcl. The purpose of 2 option is to see both the performance of 
-AHB module and the effect replecement of point to point connection with a whole interconnection protocol.
+hls_to_synth_top_AHB-INTERCONNECT.tcl is a file which can be used in catapult to run the example. With this file the TOP module will be the AHB interconnect module.
+If we want to run the example with the core as top module we must use hls_to_synth_top_drim4hls.tcl. The purpose of two options is to see both the performance of 
+AHB module and the effect replacement of point to point connection with a whole interconnection protocol.
 
